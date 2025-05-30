@@ -8,7 +8,7 @@
     "dev:frontend": "vite",
     "dev:backend": "node --watch server/index.js",
     "start": "node server/index.js",
-    "build": "tsc && vite build",
+    "build": "npm run prisma:generate && npm run prisma:migrate:deploy && tsc && vite build",
     "build:frontend": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
