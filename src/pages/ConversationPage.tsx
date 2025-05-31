@@ -27,6 +27,8 @@ interface Message {
   };
 }
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
 const ConversationPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser } = useAuth();
@@ -108,9 +110,7 @@ const ConversationPage = () => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3001/api/users/${userId}`
-      );
+      const response = await axios.get(`${API_URL}/users/${userId}`);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -122,7 +122,7 @@ const ConversationPage = () => {
       setIsLoading(true);
 
       const response = await axios.get(
-        `http://localhost:3001/api/messages/conversation/${userId}?page=${page}&limit=20`
+        `${API_URL}/messages/conversation/${userId}?page=${page}&limit=20`
       );
 
       const newMessages = response.data.messages;
@@ -166,7 +166,7 @@ const ConversationPage = () => {
 
     try {
       // Send via API
-      const response = await axios.post("http://localhost:3001/api/messages", {
+      const response = await axios.post(`${API_URL}/messages`, {
         receiverId: userId,
         content: newMessage.trim(),
       });

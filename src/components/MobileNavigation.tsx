@@ -1,14 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useState, useEffect } from 'react';
-import {
-  Home,
-  Compass,
-  Bell,
-  MessageCircle,
-  User
-} from 'lucide-react';
-import axios from 'axios';
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
+import { Home, Compass, Bell, MessageCircle, User } from "lucide-react";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 const MobileNavigation = () => {
   const location = useLocation();
@@ -21,14 +17,14 @@ const MobileNavigation = () => {
     const fetchUnreadCounts = async () => {
       try {
         const [messagesRes, notificationsRes] = await Promise.all([
-          axios.get('http://localhost:3001/api/messages/unread/count'),
-          axios.get('http://localhost:3001/api/notifications/unread/count')
+          axios.get(`${API_URL}/messages/unread/count`),
+          axios.get(`${API_URL}/notifications/unread/count`),
         ]);
-        
+
         setUnreadMessages(messagesRes.data.count);
         setUnreadNotifications(notificationsRes.data.count);
       } catch (error) {
-        console.error('Error fetching unread counts:', error);
+        console.error("Error fetching unread counts:", error);
       }
     };
 
@@ -43,41 +39,45 @@ const MobileNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/', icon: <Home className="w-6 h-6" />, label: 'Home' },
-    { path: '/explore', icon: <Compass className="w-6 h-6" />, label: 'Explore' },
+    { path: "/", icon: <Home className="w-6 h-6" />, label: "Home" },
     {
-      path: '/notifications',
+      path: "/explore",
+      icon: <Compass className="w-6 h-6" />,
+      label: "Explore",
+    },
+    {
+      path: "/notifications",
       icon: (
         <div className="relative">
           <Bell className="w-6 h-6" />
           {unreadNotifications > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              {unreadNotifications > 9 ? "9+" : unreadNotifications}
             </span>
           )}
         </div>
       ),
-      label: 'Notifications'
+      label: "Notifications",
     },
     {
-      path: '/messages',
+      path: "/messages",
       icon: (
         <div className="relative">
           <MessageCircle className="w-6 h-6" />
           {unreadMessages > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              {unreadMessages > 9 ? '9+' : unreadMessages}
+              {unreadMessages > 9 ? "9+" : unreadMessages}
             </span>
           )}
         </div>
       ),
-      label: 'Messages'
+      label: "Messages",
     },
     {
-      path: user ? `/profile/${user.username}` : '/profile',
+      path: user ? `/profile/${user.username}` : "/profile",
       icon: <User className="w-6 h-6" />,
-      label: 'Profile'
-    }
+      label: "Profile",
+    },
   ];
 
   return (
@@ -88,9 +88,7 @@ const MobileNavigation = () => {
             key={item.path}
             to={item.path}
             className={`flex flex-col items-center p-2 rounded-md ${
-              isActive(item.path)
-                ? 'text-blue-600'
-                : 'text-gray-600'
+              isActive(item.path) ? "text-blue-600" : "text-gray-600"
             }`}
           >
             {item.icon}

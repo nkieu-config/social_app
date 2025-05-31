@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const { isConnected } = useSocket();
@@ -25,8 +27,8 @@ const Sidebar = () => {
     const fetchUnreadCounts = async () => {
       try {
         const [messagesRes, notificationsRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/messages/unread/count"),
-          axios.get("http://localhost:3001/api/notifications/unread/count"),
+          axios.get(`${API_URL}/messages/unread/count`),
+          axios.get(`${API_URL}/notifications/unread/count`),
         ]);
 
         setUnreadMessages(messagesRes.data.count);

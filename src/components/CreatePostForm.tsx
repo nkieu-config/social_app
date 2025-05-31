@@ -1,7 +1,9 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { Image, X } from 'lucide-react';
-import axios from 'axios';
+import { useState, FormEvent, ChangeEvent } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Image, X } from "lucide-react";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 interface CreatePostFormProps {
   onPostCreated: () => void;
@@ -9,37 +11,37 @@ interface CreatePostFormProps {
 
 const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
   const { user } = useAuth();
-  const [content, setContent] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!content.trim() && !imageUrl.trim()) {
-      setError('Post cannot be empty');
+      setError("Post cannot be empty");
       return;
     }
-    
+
     setIsSubmitting(true);
-    setError('');
-    
+    setError("");
+
     try {
-      await axios.post('http://localhost:3001/api/posts', {
+      await axios.post(`${API_URL}/posts`, {
         content: content.trim(),
-        imageUrl: imageUrl.trim() || null
+        imageUrl: imageUrl.trim() || null,
       });
-      
+
       // Reset form
-      setContent('');
-      setImageUrl('');
-      
+      setContent("");
+      setImageUrl("");
+
       // Notify parent to refresh posts
       onPostCreated();
     } catch (error) {
-      console.error('Error creating post:', error);
-      setError('Failed to create post. Please try again.');
+      console.error("Error creating post:", error);
+      setError("Failed to create post. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -50,7 +52,7 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
   };
 
   const clearImageUrl = () => {
-    setImageUrl('');
+    setImageUrl("");
   };
 
   return (
@@ -72,7 +74,7 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
               className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition"
               rows={3}
             />
-            
+
             {imageUrl && (
               <div className="mt-2 relative">
                 <div className="flex items-center border border-gray-200 rounded-lg p-2 bg-gray-50">
@@ -81,10 +83,13 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
                     alt="Preview"
                     className="w-12 h-12 object-cover rounded"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+Image';
+                      e.currentTarget.src =
+                        "https://via.placeholder.com/150?text=Invalid+Image";
                     }}
                   />
-                  <span className="ml-2 text-sm text-gray-600 truncate flex-1">{imageUrl}</span>
+                  <span className="ml-2 text-sm text-gray-600 truncate flex-1">
+                    {imageUrl}
+                  </span>
                   <button
                     type="button"
                     className="text-gray-500 hover:text-gray-700"
@@ -95,11 +100,9 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
                 </div>
               </div>
             )}
-            
-            {error && (
-              <p className="text-red-500 text-sm mt-2">{error}</p>
-            )}
-            
+
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center">
                 <div className="relative">
@@ -113,7 +116,7 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
                   <button
                     type="button"
                     onClick={() => {
-                      const url = prompt('Enter image URL:');
+                      const url = prompt("Enter image URL:");
                       if (url) setImageUrl(url);
                     }}
                     className="text-blue-500 hover:bg-blue-50 p-2 rounded-full transition"
@@ -122,17 +125,17 @@ const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
                   </button>
                 </div>
               </div>
-              
+
               <button
                 type="submit"
                 disabled={isSubmitting || (!content.trim() && !imageUrl.trim())}
                 className={`px-4 py-2 rounded-full font-medium text-white ${
                   isSubmitting || (!content.trim() && !imageUrl.trim())
-                    ? 'bg-blue-300 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600 transition'
+                    ? "bg-blue-300 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 transition"
                 }`}
               >
-                {isSubmitting ? 'Posting...' : 'Post'}
+                {isSubmitting ? "Posting..." : "Post"}
               </button>
             </div>
           </div>

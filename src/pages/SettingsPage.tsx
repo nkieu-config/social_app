@@ -1,56 +1,62 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import { useState, FormEvent, ChangeEvent } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 const SettingsPage = () => {
   const { user, updateUser } = useAuth();
-  
+
   const [profileData, setProfileData] = useState({
-    fullName: user?.fullName || '',
-    bio: user?.bio || '',
-    avatar: user?.avatar || ''
+    fullName: user?.fullName || "",
+    bio: user?.bio || "",
+    avatar: user?.avatar || "",
   });
-  
+
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-  
-  const [profileSuccess, setProfileSuccess] = useState('');
-  const [profileError, setProfileError] = useState('');
-  const [passwordSuccess, setPasswordSuccess] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
-  const handleProfileChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleProfileChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setProfileData(prev => ({ ...prev, [name]: value }));
+    setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({ ...prev, [name]: value }));
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    setProfileSuccess('');
-    setProfileError('');
+
+    setProfileSuccess("");
+    setProfileError("");
     setIsProfileLoading(true);
-    
+
     try {
-      const response = await axios.put('http://localhost:3001/api/users/profile', profileData);
-      
+      const response = await axios.put(`${API_URL}/users/profile`, profileData);
+
       // Update user in context
       updateUser(response.data.user);
-      
-      setProfileSuccess('Profile updated successfully');
+
+      setProfileSuccess("Profile updated successfully");
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      setProfileError(error.response?.data?.message || 'Failed to update profile');
+      console.error("Error updating profile:", error);
+      setProfileError(
+        error.response?.data?.message || "Failed to update profile"
+      );
     } finally {
       setIsProfileLoading(false);
     }
@@ -58,40 +64,42 @@ const SettingsPage = () => {
 
   const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    setPasswordSuccess('');
-    setPasswordError('');
-    
+
+    setPasswordSuccess("");
+    setPasswordError("");
+
     // Validate passwords
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError("Passwords do not match");
       return;
     }
-    
+
     if (passwordData.newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters');
+      setPasswordError("New password must be at least 6 characters");
       return;
     }
-    
+
     setIsPasswordLoading(true);
-    
+
     try {
-      await axios.put('http://localhost:3001/api/users/password', {
+      await axios.put(`${API_URL}/users/password`, {
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
       });
-      
-      setPasswordSuccess('Password updated successfully');
-      
+
+      setPasswordSuccess("Password updated successfully");
+
       // Reset form
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     } catch (error: any) {
-      console.error('Error updating password:', error);
-      setPasswordError(error.response?.data?.message || 'Failed to update password');
+      console.error("Error updating password:", error);
+      setPasswordError(
+        error.response?.data?.message || "Failed to update password"
+      );
     } finally {
       setIsPasswordLoading(false);
     }
@@ -100,22 +108,22 @@ const SettingsPage = () => {
   return (
     <div className="p-4 pb-20 md:pb-4">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
-      
+
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Profile Settings</h2>
-        
+
         {profileSuccess && (
           <div className="bg-green-50 text-green-600 p-3 rounded-md mb-4">
             {profileSuccess}
           </div>
         )}
-        
+
         {profileError && (
           <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">
             {profileError}
           </div>
         )}
-        
+
         <form onSubmit={handleProfileSubmit}>
           <div className="mb-4">
             <label htmlFor="fullName" className="block text-gray-700 mb-2">
@@ -130,7 +138,7 @@ const SettingsPage = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="bio" className="block text-gray-700 mb-2">
               Bio
@@ -144,7 +152,7 @@ const SettingsPage = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           <div className="mb-6">
             <label htmlFor="avatar" className="block text-gray-700 mb-2">
               Avatar URL
@@ -160,7 +168,7 @@ const SettingsPage = () => {
             <p className="text-sm text-gray-500 mt-1">
               Enter the URL of your profile picture
             </p>
-            
+
             {profileData.avatar && (
               <div className="mt-2">
                 <p className="text-sm text-gray-700 mb-1">Preview:</p>
@@ -169,43 +177,47 @@ const SettingsPage = () => {
                   alt="Avatar preview"
                   className="w-16 h-16 rounded-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+Image';
+                    e.currentTarget.src =
+                      "https://via.placeholder.com/150?text=Invalid+Image";
                   }}
                 />
               </div>
             )}
           </div>
-          
+
           <button
             type="submit"
             disabled={isProfileLoading}
             className={`px-6 py-2 rounded-lg font-medium text-white ${
-              isProfileLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+              isProfileLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
             } transition`}
           >
-            {isProfileLoading ? 'Saving...' : 'Save Profile'}
+            {isProfileLoading ? "Saving..." : "Save Profile"}
           </button>
         </form>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Password Settings</h2>
-        
+
         {passwordSuccess && (
           <div className="bg-green-50 text-green-600 p-3 rounded-md mb-4">
             {passwordSuccess}
           </div>
         )}
-        
+
         {passwordError && (
           <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">
             {passwordError}
           </div>
         )}
-        
+
         <form onSubmit={handlePasswordSubmit}>
           <div className="mb-4">
-            <label htmlFor="currentPassword" className="block text-gray-700 mb-2">
+            <label
+              htmlFor="currentPassword"
+              className="block text-gray-700 mb-2"
+            >
               Current Password
             </label>
             <input
@@ -218,7 +230,7 @@ const SettingsPage = () => {
               required
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="newPassword" className="block text-gray-700 mb-2">
               New Password
@@ -233,9 +245,12 @@ const SettingsPage = () => {
               required
             />
           </div>
-          
+
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-gray-700 mb-2">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-gray-700 mb-2"
+            >
               Confirm New Password
             </label>
             <input
@@ -248,15 +263,17 @@ const SettingsPage = () => {
               required
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={isPasswordLoading}
             className={`px-6 py-2 rounded-lg font-medium text-white ${
-              isPasswordLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+              isPasswordLoading
+                ? "bg-blue-400"
+                : "bg-blue-600 hover:bg-blue-700"
             } transition`}
           >
-            {isPasswordLoading ? 'Updating...' : 'Update Password'}
+            {isPasswordLoading ? "Updating..." : "Update Password"}
           </button>
         </form>
       </div>

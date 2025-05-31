@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import CreatePostForm from '../components/CreatePostForm';
-import PostCard from '../components/PostCard';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import CreatePostForm from "../components/CreatePostForm";
+import PostCard from "../components/PostCard";
 
 interface Post {
   id: string;
@@ -20,10 +20,12 @@ interface Post {
   };
 }
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
 const HomePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
@@ -35,22 +37,24 @@ const HomePage = () => {
   const fetchPosts = async () => {
     try {
       setIsLoading(true);
-      setError('');
-      
-      const response = await axios.get(`http://localhost:3001/api/posts/feed/following?page=${page}&limit=10`);
-      
+      setError("");
+
+      const response = await axios.get(
+        `${API_URL}/posts/feed/following?page=${page}&limit=10`
+      );
+
       const newPosts = response.data.posts;
       const totalPages = response.data.pagination.totalPages;
-      
-      setPosts(prev => page === 1 ? newPosts : [...prev, ...newPosts]);
+
+      setPosts((prev) => (page === 1 ? newPosts : [...prev, ...newPosts]));
       setHasMore(page < totalPages);
-      
+
       // Fetch like status for each post
       const postIds = newPosts.map((post: Post) => post.id);
       await fetchLikeStatus(postIds);
     } catch (err) {
-      console.error('Error fetching posts:', err);
-      setError('Failed to load posts. Please try again.');
+      console.error("Error fetching posts:", err);
+      setError("Failed to load posts. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -58,28 +62,28 @@ const HomePage = () => {
 
   const fetchLikeStatus = async (postIds: string[]) => {
     try {
-      const likePromises = postIds.map(id => 
-        axios.get(`http://localhost:3001/api/likes/${id}/check`)
+      const likePromises = postIds.map((id) =>
+        axios.get(`${API_URL}/likes/${id}/check`)
       );
-      
+
       const responses = await Promise.all(likePromises);
-      
+
       const newLikedPosts = new Set(likedPosts);
-      
+
       responses.forEach((response, index) => {
         if (response.data.liked) {
           newLikedPosts.add(postIds[index]);
         }
       });
-      
+
       setLikedPosts(newLikedPosts);
     } catch (error) {
-      console.error('Error fetching like status:', error);
+      console.error("Error fetching like status:", error);
     }
   };
 
   const handleLoadMore = () => {
-    setPage(prev => prev + 1);
+    setPage((prev) => prev + 1);
   };
 
   const handlePostCreated = () => {
@@ -88,7 +92,7 @@ const HomePage = () => {
   };
 
   const handlePostDeleted = (deletedPostId: string) => {
-    setPosts(prev => prev.filter(post => post.id !== deletedPostId));
+    setPosts((prev) => prev.filter((post) => post.id !== deletedPostId));
   };
 
   return (
@@ -109,12 +113,13 @@ const HomePage = () => {
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <h3 className="text-xl font-medium mb-2">No posts yet</h3>
           <p className="text-gray-600 mb-4">
-            Your feed is empty. Follow other users to see their posts here, or create your first post!
+            Your feed is empty. Follow other users to see their posts here, or
+            create your first post!
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.map(post => (
+          {posts.map((post) => (
             <PostCard
               key={post.id}
               id={post.id}
@@ -135,10 +140,10 @@ const HomePage = () => {
                 onClick={handleLoadMore}
                 disabled={isLoading}
                 className={`px-6 py-2 rounded-full text-white ${
-                  isLoading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+                  isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
                 }`}
               >
-                {isLoading ? 'Loading...' : 'Load More'}
+                {isLoading ? "Loading..." : "Load More"}
               </button>
             </div>
           )}
